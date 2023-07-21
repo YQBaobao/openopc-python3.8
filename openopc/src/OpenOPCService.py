@@ -30,6 +30,7 @@ __version__ = '1.3.3'
 
 try:
     import Pyro4
+    import Pyro4.naming
     import Pyro4.core
     import win32timezone  # 不要删除，因为打包需要用到
 except ImportError:
@@ -129,11 +130,11 @@ class OpcService(win32serviceutil.ServiceFramework):
     def __init__(self, args):
         win32serviceutil.ServiceFramework.__init__(self, args)
         self.hWaitStop = win32event.CreateEvent(None, 0, 0, None)
-        self.logger = self._get_logger()
+        self.logger = self._getLogger()
         self.run = True
 
     @staticmethod
-    def _get_logger():
+    def _getLogger():
         logger = logging.getLogger('[PythonService]')
         this_file = inspect.getfile(inspect.currentframe())
         dir_path = os.path.abspath(os.path.dirname(this_file))
@@ -171,7 +172,7 @@ class OpcService(win32serviceutil.ServiceFramework):
         daemon.shutdown()
 
 
-def register_service():
+def registerService():
     if len(sys.argv) == 1:
         try:
             evt_src_dll = os.path.abspath(servicemanager.__file__)
@@ -196,12 +197,28 @@ def register_service():
             win32serviceutil.HandleCommandLine(OpcService)
 
 
-if __name__ == "__main__":
-    # 下方注释部分调试用
+def debug_pyro_register():
+    """当时用pyro协议时启用"""
+    opc = OPC()
     Pyro4.configuration.Configuration.SERIALIZERS_ACCEPTED = ["serpent", "marshal"]
     daemon = Pyro4.Daemon(host=opc_gate_host, port=opc_gate_port)
-    daemon.register(OPC(), 'opc')
-    # # uri = daemon.register(OPC(), 'opc')
-    # # print("Object uri =", uri)
+    ob_uri = daemon.register(opc, 'opc')
+    print("Object uri =", ob_uri)
     daemon.requestLoop()
-    # register_service()
+
+
+def debug_http_gateway_register():
+    """当需要使用http gateway来实现远程访问时启用"""
+    opc = OPC()
+    Pyro4.configuration.Configuration.SERIALIZERS_ACCEPTED = ["serpent", "marshal"]
+    daemon = Pyro4.Daemon()
+    Pyro4.naming.startNSloop(hmac=os.environ.get('PYRO_HMAC_KEY'))
+    ob_uri = daemon.register(opc, 'opc')
+    print("Object uri =", ob_uri)
+    daemon.requestLoop()
+
+
+if __name__ == "__main__":
+    # # 下方注释部分调试用
+    debug_http_gateway_register()
+    # registerService()

@@ -170,8 +170,8 @@ class GroupEvents:
     def __init__(self):
         self.client = current_client
 
-    def OnDataChange(self, transaction_id, NumItems, ClientHandles, ItemValues, Qualities, TimeStamps):
-        self.client.callback_queue.put((transaction_id, ClientHandles, ItemValues, Qualities, TimeStamps))
+    def OnDataChange(self, TransactionID, NumItems, ClientHandles, ItemValues, Qualities, TimeStamps):
+        self.client.callback_queue.put((TransactionID, ClientHandles, ItemValues, Qualities, TimeStamps))
 
 
 @Pyro4.expose

@@ -1,2 +1,4 @@
 Pyro4==4.82
 pywin32==304
+waitress==2.1.2
+paste==3.5.3
