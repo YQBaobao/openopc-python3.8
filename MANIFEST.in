@@ -1,0 +1,4 @@
+include *.txt
+include ./OpenOPC/bin/*.exe
+include ./OpenOPC/doc/*.pdf
+include ./OpenOPC/lib/*.dll
