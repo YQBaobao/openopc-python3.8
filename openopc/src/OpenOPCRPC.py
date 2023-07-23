@@ -25,8 +25,6 @@ Instructions:
 5. Enjoy
 """
 import sys
-import time
-
 import win32serviceutil
 import win32service
 import servicemanager
@@ -39,7 +37,7 @@ from multiprocessing.connection import Listener
 from multiprocessing.context import AuthenticationError
 
 import OpenOPC
-from SMWinservice import SMWinservice
+from SMWinservice import SMWinService
 
 # 这是除开Pyro4以外，另一种实现远程调用方法的方式，但现在有点问题，就是停止服务时无法杀死可执行文件
 __version__ = '1.0.0'
@@ -152,7 +150,7 @@ class OPC(object):
         opc_obj.close()
 
 
-class OpcService(SMWinservice):
+class OpcService(SMWinService):
     """注册windows服务"""
     _svc_name_ = "zzzRPCService"
     _svc_display_name_ = "OpenOPCRPCGateway"
@@ -214,14 +212,19 @@ def registerService():
             win32serviceutil.HandleCommandLine(OpcService)
 
 
+def debug_register():
+    """本地调试"""
+    handle = RPCHandler()
+    func = [
+        OPC().welcome_message, OPC().create_client,
+        OPC().connect, OPC().read, OPC().remove, OPC().close, OPC().verbose
+    ]
+    for f in func:
+        handle.register_function(f)
+    RPC().rpc_server(handle, (opc_gate_host, opc_gate_port), authkey=b'peekaboo')
+
+
 if __name__ == '__main__':
     # 下方注释调试用
-    # handle = RPCHandler()
-    # func = [
-    #     OPC().welcome_message, OPC().create_client,
-    #     OPC().connect, OPC().read, OPC().remove, OPC().close, OPC().verbose
-    # ]
-    # for f in func:
-    #     handle.register_function(f)
-    # RPC().rpc_server(handle, (opc_gate_host, opc_gate_port), authkey=b'peekaboo')
+    # debug_register
     registerService()

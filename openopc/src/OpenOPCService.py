@@ -92,8 +92,8 @@ class OPC(object):
         uri = self._pyroDaemon.register(opc_obj)
 
         uuid = uri.asString()
-        uriRegEx = re.compile(r"(?P<protocol>[Pp][Yy][Rr][Oo][a-zA-Z]*):(?P<object>\S+?)(@(?P<location>.+))?$")
-        match = uriRegEx.match(uuid)
+        uri_reg_ex = re.compile(r"(?P<protocol>[Pp][Yy][Rr][Oo][a-zA-Z]*):(?P<object>\S+?)(@(?P<location>.+))?$")
+        match = uri_reg_ex.match(uuid)
         object_id = match.group("object")
 
         opc_obj._open_serv = self
@@ -108,7 +108,8 @@ class OPC(object):
         # return Pyro4.Proxy(uri)
         return object_id
 
-    def release_client(self, obj):
+    @staticmethod
+    def release_client(obj):
         """Release an OpenOPC instance in the Pyro server"""
         try:
             Pyro4.Daemon().unregister(obj)

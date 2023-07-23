@@ -35,7 +35,7 @@ import win32service
 from logging.handlers import TimedRotatingFileHandler
 
 
-class SMWinservice(win32serviceutil.ServiceFramework):
+class SMWinService(win32serviceutil.ServiceFramework):
     """Base class to create winservice in Python"""
     _svc_name_ = 'PythonService'
     _svc_display_name_ = 'Python Service'
@@ -108,4 +108,4 @@ class SMWinservice(win32serviceutil.ServiceFramework):
 # entry point of the module: copy and paste into the new module
 # ensuring you are calling the "parse_command_line" of the new created class
 if __name__ == '__main__':
-    SMWinservice.parse_command_line()
+    SMWinService.parse_command_line()
