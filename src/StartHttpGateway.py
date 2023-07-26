@@ -17,7 +17,7 @@ from paste.translogger import TransLogger
 from Logssss import init_logging
 from OpenOPCNameService import host_ip
 
-init_logging(level=logging.INFO, file=os.path.join(os.getcwd() + 'log.log'))
+init_logging(level=logging.INFO, file=os.path.join(os.getcwd(), 'logs/http-gateway.log'))
 
 http_port = 7767
 re = pyro_app.ns_regex = r'remote.opcda.'
