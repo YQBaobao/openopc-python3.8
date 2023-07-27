@@ -22,8 +22,10 @@ from Pyro4.core import Daemon, expose
 from Pyro4.naming import locateNS
 from Pyro4.errors import CommunicationError
 
-import OpenOPC
-
+try:
+    import OpenOPC
+except Exception:
+    from src import OpenOPC
 opc_host_name = socket.gethostname()
 opc_class = OpenOPC.OPC_CLASS
 opc_gate_host = "localhost"
@@ -48,17 +50,58 @@ class OPC(object):
     opc_data = None
     message = ''
 
-    def read(self, opc_server, group, tags, timeout, sync):
+    def __init__(self):
         self.opc_obj = OpenOPC.Client(opc_class)
+
+    def read(self, opc_server, tags=None, group=None, size=None, pause=0, source='hybrid', update=-1, timeout=5000,
+             sync=False, include_error=False, rebuild=False, close=True):
         self.opc_obj.connect(opc_server)
-        self.opc_data = self.opc_obj.read(tags=tags, group=group, timeout=timeout, sync=sync)
+        self.opc_data = self.opc_obj.read(
+            tags=tags, group=group, size=size, pause=pause, source=source, update=update, timeout=timeout, sync=sync,
+            include_error=include_error, rebuild=rebuild)
+        if close:
+            self.opc_obj.close()
         return self.opc_data
 
-    def info(self, opc_server):
-        self.opc_obj = OpenOPC.Client(opc_class)
+    def info(self, opc_server, close=True):
         self.opc_obj.connect(opc_server)
         opc_info = self.opc_obj.info()
+        if close:
+            self.opc_obj.close()
         return opc_info
+
+    def groups(self):
+        return self.opc_obj.groups()
+
+    def remove(self, groups):
+        return self.opc_obj.remove(groups)
+
+    def properties(self, opc_server, tags, tid=None, close=True):
+        self.opc_obj.connect(opc_server)
+        props_list = self.opc_obj.properties(tags, tid=tid)
+        if close:
+            self.opc_obj.close()
+        return props_list
+
+    def list(self, opc_server, paths='*', recursive=False, flat=False, include_type=False, close=True):
+        self.opc_obj.connect(opc_server)
+        paths_list = self.opc_obj.list(paths=paths, recursive=recursive, flat=flat, include_type=include_type)
+        if close:
+            self.opc_obj.close()
+        return paths_list
+
+    def servers(self, opc_host='localhost'):
+        return self.opc_obj.servers(opc_host=opc_host)
+
+    def ping(self, opc_server, close=True):
+        self.opc_obj.connect(opc_server)
+        ping = self.opc_obj.ping()
+        if close:
+            self.opc_obj.close()
+        return ping
+
+    def close(self):
+        self.opc_obj.close()
 
 
 class NSLoopThread(threading.Thread):
