@@ -7,6 +7,7 @@ import socket
 import sys
 import threading
 import time
+import re
 
 import select
 import servicemanager
@@ -51,57 +52,116 @@ class OPC(object):
     message = ''
 
     def __init__(self):
-        self.opc_obj = OpenOPC.Client(opc_class)
+        self._remote_hosts = {}
+        self._init_times = {}
+        self._tx_times = {}
+        self.opc_obj = object
 
-    def read(self, opc_server, tags=None, group=None, size=None, pause=0, source='hybrid', update=-1, timeout=5000,
-             sync=False, include_error=False, rebuild=False, close=True):
-        self.opc_obj.connect(opc_server)
-        self.opc_data = self.opc_obj.read(
-            tags=tags, group=group, size=size, pause=pause, source=source, update=update, timeout=timeout, sync=sync,
-            include_error=include_error, rebuild=rebuild)
-        if close:
-            self.opc_obj.close()
-        return self.opc_data
+    def creat_client(self):
+        opc_obj = OpenOPC.Client(opc_class)
+        uri = self._pyroDaemon.register(opc_obj)
 
-    def info(self, opc_server, close=True):
-        self.opc_obj.connect(opc_server)
-        opc_info = self.opc_obj.info()
-        if close:
-            self.opc_obj.close()
-        return opc_info
+        uuid = uri.asString()
+        uri_reg_ex = re.compile(r"(?P<protocol>[Pp][Yy][Rr][Oo][a-zA-Z]*):(?P<object>\S+?)(@(?P<location>.+))?$")
+        match = uri_reg_ex.match(uuid)
+        object_id = match.group("object")
+
+        opc_obj._open_serv = self
+        opc_obj._open_self = opc_obj
+        opc_obj._open_host = opc_gate_host
+        opc_obj._open_port = opc_gate_port
+        opc_obj._open_guid = uuid
+
+        self._remote_hosts[uuid] = '%s' % uuid
+        self._init_times[uuid] = time.time()
+        self._tx_times[uuid] = time.time()
+        self.opc_obj = Pyro4.Proxy(uuid)
+        return {"creat_client": str(object_id)}
+
+    def connect(self, opc_server):
+        connect = self.opc_obj.connect(opc_server)
+        return {"connect": connect}
+
+    def read(self, tags=None, group=None, size=None, pause=0, source='hybrid', update=-1, timeout=5000,
+             sync: str = "False", include_error: str = "False", rebuild: str = "False"):
+        try:
+            pause = int(pause)
+            update = int(update)
+            timeout = int(timeout)
+            if sync.lower() == "true":
+                sync = True
+            else:
+                sync = False
+            if include_error.lower() == "true":
+                include_error = True
+            else:
+                include_error = False
+            if rebuild.lower() == "true":
+                rebuild = True
+            else:
+                rebuild = False
+            opc_data = self.opc_obj.read(
+                tags=tags, group=group, size=size, pause=pause, source=source, update=update, timeout=timeout,
+                sync=sync, include_error=include_error, rebuild=rebuild)
+            # opc_data = self.opc_obj.read(tags=tags, group=group, timeout=timeout, sync=sync)
+        except Exception:
+            opc_data = Exception.args
+        return opc_data
+
+    def info(self):
+        return self.opc_obj.info()
 
     def groups(self):
-        return self.opc_obj.groups()
+        groups = self.opc_obj.groups()
+        return {"groups": groups}
 
     def remove(self, groups):
-        return self.opc_obj.remove(groups)
+        remove = self.opc_obj.remove(groups)
+        return {"remove": remove}
 
-    def properties(self, opc_server, tags, tid=None, close=True):
-        self.opc_obj.connect(opc_server)
-        props_list = self.opc_obj.properties(tags, tid=tid)
-        if close:
-            self.opc_obj.close()
-        return props_list
+    def properties(self, tags, tid=None):
+        return self.opc_obj.properties(tags, tid=tid)
 
-    def list(self, opc_server, paths='*', recursive=False, flat=False, include_type=False, close=True):
-        self.opc_obj.connect(opc_server)
-        paths_list = self.opc_obj.list(paths=paths, recursive=recursive, flat=flat, include_type=include_type)
-        if close:
-            self.opc_obj.close()
-        return paths_list
+    def lists(self, paths='*', recursive: str = "False", flat: str = "False", include_type: str = "False"):
+        if recursive.lower() == "true":
+            recursive = True
+        else:
+            recursive = False
+        if flat.lower() == "true":
+            flat = True
+        else:
+            flat = False
+        if include_type.lower() == "true":
+            include_type = True
+        else:
+            include_type = False
+        return self.opc_obj.list(paths=paths, recursive=recursive, flat=flat, include_type=include_type)
 
     def servers(self, opc_host='localhost'):
         return self.opc_obj.servers(opc_host=opc_host)
 
-    def ping(self, opc_server, close=True):
-        self.opc_obj.connect(opc_server)
+    def ping(self):
         ping = self.opc_obj.ping()
-        if close:
-            self.opc_obj.close()
-        return ping
+        return {"ping": ping}
 
-    def close(self):
-        self.opc_obj.close()
+    def close(self, del_object: str = "True"):
+        if del_object.lower() == "true":
+            del_object = True
+        else:
+            del_object = False
+        close = self.opc_obj.close(del_object=del_object)
+        return {"close": close}
+
+    def release_client(self, obj):
+        try:
+            self._pyroDaemon.unregister(obj)
+            del self._remote_hosts[obj.GUID()]
+            del self._init_times[obj.GUID()]
+            del self._tx_times[obj.GUID()]
+            del obj
+            return True
+        except Exception:
+            return False
 
 
 class NSLoopThread(threading.Thread):

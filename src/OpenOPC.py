@@ -290,6 +290,11 @@ class Client(object):
         self._group_handles_tag = {}
         self._group_hooks = {}
 
+        return connected
+
+    def GUID(self):
+        return self._open_guid
+
     def close(self, del_object=True):
         """Disconnect from the currently connected OPC server"""
 
@@ -309,7 +314,8 @@ class Client(object):
 
             # Remove this object from the open gateway service
             if self._open_serv and del_object:
-                self._open_serv.release_client(self._open_self)
+                release = self._open_serv.release_client(self._open_self)
+                return release
 
     def iread(self, tags=None, group=None, size=None, pause=0, source='hybrid', update=-1, timeout=5000, sync=False,
               include_error=False, rebuild=False):
@@ -515,10 +521,7 @@ class Client(object):
 
                 # Sync Read
                 if sync:
-                    # values = []
-                    # errors = []
-                    # qualities = []
-                    # timestamps = []
+                    # values, errors, qualities, timestamps = [], [], [], []
 
                     if len(valid_tags) > 0:
                         server_handles.insert(0, 0)
@@ -634,7 +637,9 @@ class Client(object):
     def read(self, tags=None, group=None, size=None, pause=0, source='hybrid', update=-1, timeout=5000, sync=False,
              include_error=False, rebuild=False):
         """Return list of (value, quality, time) tuples for the specified tag(s)"""
-
+        # print(type(tags), tags, type(group), group, type(size), size, type(pause), pause, type(source), source,
+        #       type(update), update, type(timeout), timeout, type(sync), sync, type(include_error), include_error,
+        #       type(rebuild), rebuild)
         tags_list, single, valid = type_check(tags)
         if not valid:
             raise TypeError("read(): 'tags' parameter must be a string or a list of strings")
@@ -889,14 +894,8 @@ class Client(object):
         try:
             opc_groups = self._opc.OPCGroups
 
-            # if type(groups) in (str,):
-            #     groups = [groups]
-            #     single = True
-            # else:
-            #     single = False
-            #
-            # status = []
-
+            if type(groups) in (str, bytes):
+                groups = [groups]
             for group in groups:
                 if group in self._groups:
                     for i in range(self._groups[group]):
@@ -919,6 +918,7 @@ class Client(object):
                         del (self._group_server_handles[sub_group])
                     del (self._groups[group])
 
+            return True
         except pythoncom.com_error as err:
             error_msg = 'remove: %s' % self._get_error_str(err)
             raise OPCError(error_msg)
