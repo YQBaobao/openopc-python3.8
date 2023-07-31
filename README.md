@@ -1,32 +1,40 @@
-OpenOPC
+## OpenOPC_Py38
 =======
 
-注意：
-使用前，需要在管理员cmd中注册 openopc/lib/gbda_aut.dll 库文件，否则无法使用
-注册=regsvr32 gbda_aut.dll
-卸载=regsvr32 -u gbda_aut.dll
+### 使用说明：
+1. 使用前，需要在管理员cmd中注册 openopc/lib/gbda_aut.dll 库文件，否则无法使用
+- 注册=regsvr32 gbda_aut.dll
+- 卸载=regsvr32 -u gbda_aut.dll
 
-本版本1.3.3,在使用 OPenOPCService.exe 时，若需修改默认的参数，是需要通过环境变量来修改的
-主要添加如下变量：
-OPC_CLASS=Matrikon.OPC.Automation;Graybox.OPC.DAWrapper;HSCOPC.Automation;RSI.OPCAutomation;OPC.Automation
-OPC_CLIENT=OpenOPC
-OPC_GATE_HOST=0.0.0.0
-OPC_GATE_PORT=7766
-OPC_HOST=localhost
-OPC_INACTIVE_TIMEOUT=60
-OPC_MAX_CLIENTS=25
-OPC_MODE=dcom
-OPC_SERVER=Hci.TPNServer;HwHsc.OPCServer;opc.deltav.1;AIM.OPC.1;Yokogawa.ExaopcDAEXQ.1;OSI.DA.1;OPC.PHDServerDA.1;Aspen.Infoplus21_DA.1;National Instruments.OPCLabVIEW;RSLinx OPC Server;KEPware.KEPServerEx.V4;KEPware.KEPServerEx.V6;Matrikon.OPC.Simulation;Prosys.OPC.Simulation
-
+2. 本版本1.4.0,在使用 OPenOPCService.exe 时，若需修改默认的参数，是需要通过环境变量来修改的
+- 主要添加如下变量：
+  - OPC_CLASS=Matrikon.OPC.Automation;Graybox.OPC.DAWrapper;HSCOPC.Automation;RSI.OPCAutomation;OPC.Automation
+  - OPC_CLIENT=OpenOPC
+  - OPC_GATE_HOST=0.0.0.0
+  - OPC_GATE_PORT=7766
+  - OPC_HOST=localhost
+  - OPC_INACTIVE_TIMEOUT=60 
+  - OPC_MAX_CLIENTS=25
+  - OPC_MODE=dcom
+  - OPC_SERVER=Hci.TPNServer;HwHsc.OPCServer;opc.deltav.1;AIM.OPC.1;Yokogawa.ExaopcDAEXQ.1;OSI.DA.1;OPC.PHDServerDA.1;Aspen.Infoplus21_DA.1;National Instruments.OPCLabVIEW;RSLinx OPC Server;KEPware.KEPServerEx.V4;KEPware.KEPServerEx.V6;Matrikon.OPC.Simulation;Prosys.OPC.Simulation
+### 使用OPenOPCService,也就是RMI服务
 使用 OPenOPCService.exe 可安装为 windows 服务使用
-如 cmd 下输入：
-安装=OPenOPCService.exe install
-卸载=OPenOPCService.exe remove
-停止=OPenOPCService.exe stop
-启动=OPenOPCService.exe start
-重启=OPenOPCService.exe restart
+- 如 cmd 下输入：
+  - 安装=OPenOPCService.exe install
+  - 卸载=OPenOPCService.exe remove
+  - 停止=OPenOPCService.exe stop
+  - 启动=OPenOPCService.exe start
+  - 重启=OPenOPCService.exe restart
 
-以下为原 readme 指导内容：
+### 使用HTTP Gateway服务
+要使用HTTP Gateway,需要开启两项服务，分别是`OpenOPC_Py38\bin\OpenOPCNameService.exe`与`OpenOPC_Py38\bin\StartHttpGateway.exe`
+- 同使用OPenOPCService一样，OpenOPCNameService也需要注册成windows服务
+- 注册OpenOPCNameService服务后，开启StartHttpGateway(直接运行即可)
+
+### 更多说明可见：
+https://github.com/YQBaobao/openopc-python3.8/blob/master/OpenOPC_Py38/bin/readme.md
+
+## 以下为原 readme.txt 内容：
 
 OpenOPC for Python 3.x is a descendent of http://openopc.sourceforge.net
 with modifications for Python 3 and distutils.

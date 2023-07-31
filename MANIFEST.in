@@ -1,8 +1,8 @@
 include *.txt
-include ./OpenOPC_Py38/bin/*.exe
-include ./OpenOPC_Py38/bin/*.bat
-include ./OpenOPC_Py38/bin/*.txt
-include ./OpenOPC_Py38/doc/*.pdf
-include ./OpenOPC_Py38/lib/*.dll
-include ./OpenOPC_Py38/lib/*.bat
-include ./OpenOPC_Py38/static/*.ico
+recursive-include ./OpenOPC_Py38/bin/*.exe
+recursive-include ./OpenOPC_Py38/bin/*.bat
+recursive-include ./OpenOPC_Py38/bin/*.txt
+recursive-include ./OpenOPC_Py38/doc/*.pdf
+recursive-include ./OpenOPC_Py38/lib/*.dll
+recursive-include ./OpenOPC_Py38/lib/*.bat
+recursive-include ./OpenOPC_Py38/static/*.ico
