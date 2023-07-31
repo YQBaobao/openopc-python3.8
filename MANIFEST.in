@@ -1,4 +1,8 @@
 include *.txt
-include ./OpenOPC/bin/*.exe
-include ./OpenOPC/doc/*.pdf
-include ./OpenOPC/lib/*.dll
+include ./OpenOPC_Py38/bin/*.exe
+include ./OpenOPC_Py38/bin/*.bat
+include ./OpenOPC_Py38/bin/*.txt
+include ./OpenOPC_Py38/doc/*.pdf
+include ./OpenOPC_Py38/lib/*.dll
+include ./OpenOPC_Py38/lib/*.bat
+include ./OpenOPC_Py38/static/*.ico
