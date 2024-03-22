@@ -32,7 +32,10 @@
 - 注册OpenOPCNameService服务后，开启StartHttpGateway(直接运行即可)
 
 ### 更多说明可见：
-https://github.com/YQBaobao/openopc-python3.8/blob/master/OpenOPC_Py38/bin/readme.md
+[更多说明,见这里](https://github.com/YQBaobao/openopc-python3.8/blob/master/OpenOPC_Py38/bin/readme.md)
+
+### 配套的示例客户端
+[示例客户端仓库](https://github.com/YQBaobao/openopc-client)
 
 ## 以下为原 readme.txt 内容：
 
